@@ -6,8 +6,10 @@
 import json
 import math
 import os
+import random
 import re
 import socket
+import string
 import urllib
 from collections import defaultdict
 
@@ -115,6 +117,7 @@ def rename(proxy: dict, reader: database.Reader) -> dict:
 
         # fake ip
         if ip.startswith("198.18.0."):
+            logger.warning("cannot get geolocation and rename because IP address is faked")
             return proxy
 
         name = proxy.get("name", "")
@@ -162,6 +165,9 @@ def regularize(
     records = defaultdict(list)
     for proxy in proxies:
         name = re.sub(r"(\d+|(\d+)?(-\d+)?[A-Z])$", "", proxy.get("name", "")).strip()
+        if not name:
+            name = "".join(random.sample(string.ascii_uppercase, 6))
+
         proxy["name"] = name
         records[name].append(proxy)
 
